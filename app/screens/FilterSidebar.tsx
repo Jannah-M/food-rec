@@ -1,12 +1,27 @@
+import React from 'react';
 import {
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
-export default function FilterSidebar({ filters, setFilters }) {
+type Filters = {
+  comfortFood: boolean;
+  surpriseMe: boolean;
+  budget: string;
+  cuisine: string;
+  distance: string;
+  mealType: string;
+};
+
+type Props = {
+  filters: Filters;
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+};
+
+export default function FilterSidebar({ filters, setFilters }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Filters</Text>

@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   Linking,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 
 export default function AcceptedRestaurantScreen() {
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 24,
-    backgroundColor: 'white',
+    backgroundColor: '#f5f5f5',
   },
   headerBlock: {
     marginBottom: 32,

@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { router } from 'expo-router';
 
 type RootStackParamList = {
   Onboarding: undefined;
@@ -142,18 +142,21 @@ const styles = StyleSheet.create({
 
   header: {
     marginBottom: 40,
+    alignItems: 'center',
   },
 
   title: {
     fontSize: 42,
     fontWeight: 'bold',
     color: '#111',
+    textAlign: 'center',
   },
 
   subtitle: {
     fontSize: 16,
     color: '#666',
     marginTop: 10,
+    textAlign: 'center',
   },
 
   section: {
@@ -178,7 +181,8 @@ const styles = StyleSheet.create({
 
   budgetRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    paddingHorizontal: 12,
   },
 
   budgetButton: {
@@ -190,6 +194,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#ddd',
+    marginHorizontal: 4,
   },
 
   selectedBudget: {

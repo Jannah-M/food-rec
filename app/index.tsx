@@ -27,7 +27,10 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
   const [name, setName] = useState('');
 
   const handleNext = () => {
-    router.push('/RecommendationScreen');
+    router.push({
+      pathname: '/RecommendationScreen',
+      params: { budget },
+    });
   };
 
   return (

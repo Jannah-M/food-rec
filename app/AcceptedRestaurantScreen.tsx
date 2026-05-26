@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-  Image,
   Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
 
 export default function AcceptedRestaurantScreen() {
@@ -20,62 +20,72 @@ export default function AcceptedRestaurantScreen() {
     );
   }
 
-  const openLink = (url: string) => {
-    if (url) Linking.openURL(url);
-  };
+  const { name, address, rating, summary } = restaurant;
+
+  // Generate links dynamically from name + address
+  const query = encodeURIComponent(`${name} ${address}`);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  const doordashUrl = `https://www.doordash.com/search/store/${encodeURIComponent(name)}`;
+  const googleSearchUrl = `https://www.google.com/search?q=${query}+menu`;
+
+  const openLink = (url: string) => Linking.openURL(url);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: restaurant.image }}
-        style={styles.image}
-      />
-      <Text style={styles.name}>{restaurant.name}</Text>
-      <Text style={styles.description}>{restaurant.description}</Text>
-      <Text style={styles.typeText}>
-        {restaurant.cuisine} • {restaurant.budget}
-      </Text>
-      <TouchableOpacity style={styles.button} onPress={() => openLink(restaurant.menuUrl)}>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
+      <View style={styles.headerBlock}>
+        <Text style={styles.name}>{name}</Text>
+        {summary ? <Text style={styles.description}>{summary}</Text> : null}
+        <Text style={styles.address}>📍 {address}</Text>
+        <Text style={styles.rating}>⭐ {rating}</Text>
+      </View>
+
+      {/* Actions */}
+      <TouchableOpacity style={styles.button} onPress={() => openLink(googleSearchUrl)}>
         <Text style={styles.buttonText}>View Menu</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => openLink(restaurant.mapsUrl)}>
-        <Text style={styles.buttonText}>Go To Maps</Text>
+      <TouchableOpacity style={styles.button} onPress={() => openLink(mapsUrl)}>
+        <Text style={styles.buttonText}>Open in Maps</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => openLink(restaurant.doordashUrl)}>
+      <TouchableOpacity style={styles.button} onPress={() => openLink(doordashUrl)}>
         <Text style={styles.buttonText}>Open DoorDash</Text>
       </TouchableOpacity>
       <TouchableOpacity style={[styles.button, styles.rerollButton]} onPress={() => router.back()}>
         <Text style={styles.buttonText}>Reroll</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
+    flexGrow: 1,
+    padding: 24,
     backgroundColor: 'white',
   },
-  image: {
-    width: '100%',
-    height: 250,
-    borderRadius: 20,
+  headerBlock: {
+    marginBottom: 32,
+    marginTop: 20,
   },
   name: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginTop: 20,
+    color: '#1a1a1a',
   },
   description: {
     fontSize: 17,
     color: '#666',
     marginTop: 10,
   },
-  typeText: {
-    fontSize: 18,
+  address: {
+    fontSize: 15,
+    color: '#888',
     marginTop: 10,
-    marginBottom: 30,
+  },
+  rating: {
+    fontSize: 16,
+    marginTop: 6,
+    color: '#1a1a1a',
   },
   button: {
     backgroundColor: '#111',
@@ -85,7 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   rerollButton: {
-    backgroundColor: '#ff5a5f',
+    backgroundColor: '#E8501A',
   },
   buttonText: {
     color: 'white',

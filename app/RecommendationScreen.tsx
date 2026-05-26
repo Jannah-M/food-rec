@@ -1,95 +1,95 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import FilterSidebar from '../components/FilterSidebar';
-import { restaurants } from '../data/restaurants';
+import { useLocalSearchParams } from 'expo-router';
+import { useRestaurant } from '../hooks/useRestaurant';
 
 export default function RecommendationScreen() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [filters, setFilters] = useState({
-    comfortFood: false,
-    surpriseMe: true,
-    budget: '$$',
-    cuisine: 'Any',
-    distance: '5 miles',
-    mealType: 'Dinner',
-  });
+  const { budget } = useLocalSearchParams<{ budget: string }>();
+  const { restaurant, loading, error, rerollsLeft, getRecommendation, reroll } =
+    useRestaurant(budget ?? '$$');
 
-  const restaurant = restaurants[currentIndex];
+  useEffect(() => {
+    getRecommendation();
+  }, []);
 
-  const nextRestaurant = () => {
-    if (currentIndex < restaurants.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentIndex(0);
-    }
-  };
-
-  const acceptRestaurant = () => {
-    router.push({
-      pathname: '/AcceptedRestaurantScreen',
-      params: { restaurant: JSON.stringify(restaurant) },
-    });
-  };
-
-  if (!restaurant) {
+  if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading...</Text>
+      <View style={styles.centered}>
+        <Text style={styles.loadingText}>Finding your next meal...</Text>
       </View>
     );
   }
 
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={getRecommendation}>
+          <Text style={styles.buttonText}>Try Again</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (!restaurant) return null;
+
+  const name = restaurant.displayName?.text ?? 'Unknown Restaurant';
+  const address = restaurant.formattedAddress ?? '';
+  const rating = restaurant.rating ?? 'N/A';
+  const summary = restaurant.editorialSummary?.text ?? '';
+
+  const acceptRestaurant = () => {
+    router.push({
+      pathname: '/AcceptedRestaurantScreen',
+      params: { restaurant: JSON.stringify({ name, address, rating, summary }) },
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <FilterSidebar filters={filters} setFilters={setFilters} />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.card}>
-          <Image source={{ uri: restaurant.image }} style={styles.image} />
-          <Text style={styles.name}>{restaurant.name}</Text>
-          <Text style={styles.description}>{restaurant.description}</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.info}>🍽 {restaurant.cuisine}</Text>
-            <Text style={styles.info}>💵 {restaurant.budget}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.info}>📍 {restaurant.distance}</Text>
-            <Text style={styles.info}>⏱ {restaurant.waitTime}</Text>
-          </View>
-          <Text style={styles.sectionTitle}>Popular Items</Text>
-          {(restaurant?.popularItems ?? []).map((item, index) => (
-            <Text key={index} style={styles.menuItem}>• {item}</Text>
-          ))}
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={nextRestaurant}>
-              <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={acceptRestaurant}>
-              <Text style={styles.buttonText}>Accept</Text>
-            </TouchableOpacity>
-          </View>
+    <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.card}>
+        <Text style={styles.name}>{name}</Text>
+        {summary ? <Text style={styles.description}>{summary}</Text> : null}
+        <View style={styles.infoRow}>
+          <Text style={styles.info}>⭐ {rating}</Text>
+          <Text style={styles.info}>📍 {address}</Text>
         </View>
-      </ScrollView>
-    </View>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.button, styles.rejectButton, rerollsLeft === 0 && styles.disabled]}
+            onPress={reroll}
+            disabled={rerollsLeft === 0}
+          >
+            <Text style={styles.buttonText}>
+              Next {rerollsLeft > 0 ? `(${rerollsLeft} left)` : '(none left)'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={acceptRestaurant}>
+            <Text style={styles.buttonText}>Accept</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#FFF8F2',
-  },
   content: {
     flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#FFF8F2',
+  },
+  centered: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -98,18 +98,12 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 15,
+    padding: 20,
     elevation: 5,
-  },
-  image: {
-    width: '100%',
-    height: 250,
-    borderRadius: 20,
   },
   name: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 15,
     color: '#1a1a1a',
   },
   description: {
@@ -125,17 +119,6 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 15,
     color: '#1a1a1a',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-    color: '#1a1a1a',
-  },
-  menuItem: {
-    marginTop: 5,
-    fontSize: 16,
-    color: '#444',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -155,9 +138,27 @@ const styles = StyleSheet.create({
   acceptButton: {
     backgroundColor: '#E8501A',
   },
+  disabled: {
+    backgroundColor: '#ccc',
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#888',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#E8501A',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#1a1a1a',
+    padding: 15,
+    borderRadius: 15,
   },
 });

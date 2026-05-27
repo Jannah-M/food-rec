@@ -177,6 +177,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderWidth: 1,
     borderColor: '#ddd',
+    width: '100%',
+    alignSelf: 'center',
   },
 
   budgetRow: {
@@ -214,12 +216,14 @@ const styles = StyleSheet.create({
 
   radioRow: {
     flexDirection: 'row',
+    justifyContent: 'center',
     gap: 30,
   },
 
   radioOption: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 8,
   },
 
   outerCircle: {

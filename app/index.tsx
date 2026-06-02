@@ -37,7 +37,7 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
     <SafeAreaView style={styles.container}>
       {/* TITLE */}
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome!</Text>
+        <Text style={styles.title}>Mirepoix</Text>
         <Text style={styles.subtitle}>
           Let’s find food that matches your vibe.
         </Text>

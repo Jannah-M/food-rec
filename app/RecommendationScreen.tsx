@@ -21,7 +21,9 @@ export default function RecommendationScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
+        <Text style={styles.loadingEmoji}>🍜</Text>
         <Text style={styles.loadingText}>Finding your next meal...</Text>
+        <Text style={styles.loadingSubtext}>This won't take long</Text>
       </View>
     );
   }
@@ -29,9 +31,10 @@ export default function RecommendationScreen() {
   if (error) {
     return (
       <View style={styles.centered}>
+        <Text style={styles.errorEmoji}>😕</Text>
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={getRecommendation}>
-          <Text style={styles.buttonText}>Try Again</Text>
+          <Text style={styles.retryButtonText}>Try Again</Text>
         </TouchableOpacity>
       </View>
     );
@@ -52,26 +55,56 @@ export default function RecommendationScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.name}>{name}</Text>
-        {summary ? <Text style={styles.description}>{summary}</Text> : null}
-        <View style={styles.infoRow}>
-          <Text style={styles.info}>⭐ {rating}</Text>
-          <Text style={styles.info}>📍 {address}</Text>
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.inner}>
+        {/* Top label */}
+        <View style={styles.topLabel}>
+          <Text style={styles.topLabelText}>Today's Pick · Mirepoix</Text>
         </View>
+
+        {/* Card */}
+        <View style={styles.card}>
+          <View style={styles.ratingBadge}>
+            <Text style={styles.ratingBadgeText}>⭐ {rating}</Text>
+          </View>
+
+          <Text style={styles.name}>{name}</Text>
+
+          {summary ? <Text style={styles.description}>{summary}</Text> : null}
+
+          <View style={styles.addressRow}>
+            <Text style={styles.addressIcon}>📍</Text>
+            <Text style={styles.address}>{address}</Text>
+          </View>
+        </View>
+
+        {/* Rerolls counter */}
+        {rerollsLeft > 0 && (
+          <Text style={styles.rerollsLabel}>{rerollsLeft} skips remaining</Text>
+        )}
+
+        {/* Buttons */}
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={[styles.button, styles.rejectButton, rerollsLeft === 0 && styles.disabled]}
+            style={[styles.skipButton, rerollsLeft === 0 && styles.disabled]}
             onPress={reroll}
             disabled={rerollsLeft === 0}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>
-              Next {rerollsLeft > 0 ? `(${rerollsLeft} left)` : '(none left)'}
+            <Text style={styles.skipButtonText}>
+              {rerollsLeft === 0 ? 'No skips left' : 'Skip →'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={acceptRestaurant}>
-            <Text style={styles.buttonText}>Accept</Text>
+
+          <TouchableOpacity
+            style={styles.acceptButton}
+            onPress={acceptRestaurant}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.acceptButtonText}>Let's go! 🎉</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -80,85 +113,173 @@ export default function RecommendationScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
+  scrollContent: {
     flexGrow: 1,
+    backgroundColor: '#FFFBF7',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    padding: 24,
+    paddingVertical: 40,
+  },
+  inner: {
+    width: '100%',
+    maxWidth: 480,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    padding: 24,
+    backgroundColor: '#FFFBF7',
   },
-  card: {
-    width: '100%',
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-    elevation: 5,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-  },
-  description: {
-    fontSize: 16,
-    marginTop: 10,
-    color: '#888',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  info: {
-    fontSize: 15,
-    color: '#1a1a1a',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 25,
-  },
-  button: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 15,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  rejectButton: {
-    backgroundColor: '#1a1a1a',
-  },
-  acceptButton: {
-    backgroundColor: '#E8501A',
-  },
-  disabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  loadingEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
   },
   loadingText: {
-    fontSize: 18,
-    color: '#888',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111',
+    marginBottom: 6,
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    color: '#aaa',
+  },
+  errorEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
   },
   errorText: {
     fontSize: 16,
     color: '#E8501A',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+    lineHeight: 22,
   },
   retryButton: {
-    backgroundColor: '#1a1a1a',
-    padding: 15,
-    borderRadius: 15,
+    backgroundColor: '#111',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 14,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  topLabel: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FDE8DF',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  topLabelText: {
+    fontSize: 13,
+    color: '#E8501A',
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    marginBottom: 16,
+  },
+  ratingBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF3ED',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 14,
+  },
+  ratingBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#E8501A',
+  },
+  name: {
+    fontSize: 30,
+    fontWeight: '800',
+    color: '#111',
+    letterSpacing: -0.5,
+    lineHeight: 36,
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 15,
+    color: '#888',
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginTop: 4,
+  },
+  addressIcon: {
+    fontSize: 14,
+    marginTop: 1,
+  },
+  address: {
+    flex: 1,
+    fontSize: 14,
+    color: '#aaa',
+    lineHeight: 20,
+  },
+  rerollsLabel: {
+    fontSize: 13,
+    color: '#bbb',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontWeight: '500',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  skipButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#DDD',
+    backgroundColor: '#fff',
+  },
+  skipButtonText: {
+    color: '#555',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  acceptButton: {
+    flex: 1.4,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    backgroundColor: '#E8501A',
+    shadowColor: '#E8501A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  acceptButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  disabled: {
+    backgroundColor: '#F5F5F5',
+    borderColor: '#EEE',
   },
 });

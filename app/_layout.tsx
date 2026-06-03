@@ -8,8 +8,26 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="RecommendationScreen" options={{ title: 'Recommendations' }} />
-        <Stack.Screen name="ResultScreen" options={{ title: 'Your Pick' }} />
+        <Stack.Screen
+          name="RecommendationScreen"
+          options={{
+            title: 'Recommendations',
+            headerStyle: { backgroundColor: '#FFFBF7' },
+            headerShadowVisible: false,
+            headerTintColor: '#111',
+            headerTitleStyle: { fontWeight: '700' },
+          }}
+        />
+        <Stack.Screen
+          name="AcceptedRestaurantScreen"
+          options={{
+            title: 'Your Pick',
+            headerStyle: { backgroundColor: '#FFFBF7' },
+            headerShadowVisible: false,
+            headerTintColor: '#111',
+            headerTitleStyle: { fontWeight: '700' },
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

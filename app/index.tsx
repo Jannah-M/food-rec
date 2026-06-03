@@ -3,8 +3,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -34,241 +37,263 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* TITLE */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Mirepoix</Text>
-        <Text style={styles.subtitle}>
-          Let’s find food that matches your vibe.
-        </Text>
-      </View>
-
-      {/* NAME INPUT */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Name</Text>
-
-        <TextInput
-          placeholder="Enter your name"
-          placeholderTextColor="#999"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-        />
-      </View>
-
-      {/* BUDGET */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Budget</Text>
-
-        <View style={styles.budgetRow}>
-          {['$', '$$', '$$$'].map((item) => (
-            <Pressable
-              key={item}
-              style={[
-                styles.budgetButton,
-                budget === item && styles.selectedBudget,
-              ]}
-              onPress={() => setBudget(item)}
-            >
-              <Text
-                style={[
-                  styles.budgetText,
-                  budget === item && styles.selectedBudgetText,
-                ]}
-              >
-                {item}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      {/* DIETARY */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Dietary Restrictions</Text>
-
-        <View style={styles.radioRow}>
-          <Pressable
-            style={styles.radioOption}
-            onPress={() => setSelection('vegan')}
-          >
-            <View style={styles.outerCircle}>
-              {selection === 'vegan' && (
-                <View style={styles.innerCircle} />
-              )}
-            </View>
-
-            <Text style={styles.radioText}>Vegan</Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.radioOption}
-            onPress={() => setSelection('non-vegan')}
-          >
-            <View style={styles.outerCircle}>
-              {selection === 'non-vegan' && (
-                <View style={styles.innerCircle} />
-              )}
-            </View>
-
-            <Text style={styles.radioText}>Non-Vegan</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {/* NEXT BUTTON */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.nextButton,
-          pressed && styles.pressed,
-        ]}
-        onPress={handleNext}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Text style={styles.nextButtonText}>Next</Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* BRAND HEADER */}
+          <View style={styles.brandHeader}>
+            <Text style={styles.appName}>Mirepoix</Text>
+            <Text style={styles.tagline}>Your next great meal, decided.</Text>
+          </View>
 
-        <Ionicons name="arrow-forward" size={20} color="#fff" />
-      </Pressable>
+          {/* FORM CARD */}
+          <View style={styles.card}>
+
+            {/* NAME INPUT */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Your Name</Text>
+              <TextInput
+                placeholder="e.g. Alex"
+                placeholderTextColor="#bbb"
+                value={name}
+                onChangeText={setName}
+                style={styles.input}
+              />
+            </View>
+
+            {/* BUDGET */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Budget</Text>
+              <View style={styles.budgetRow}>
+                {[
+                  { key: '$', label: '$', sub: 'Cheap' },
+                  { key: '$$', label: '$$', sub: 'Moderate' },
+                  { key: '$$$', label: '$$$', sub: 'Fancy' },
+                ].map((item) => (
+                  <Pressable
+                    key={item.key}
+                    style={[styles.budgetButton, budget === item.key && styles.selectedBudget]}
+                    onPress={() => setBudget(item.key)}
+                  >
+                    <Text style={[styles.budgetText, budget === item.key && styles.selectedBudgetText]}>
+                      {item.label}
+                    </Text>
+                    <Text style={[styles.budgetSub, budget === item.key && styles.selectedBudgetSub]}>
+                      {item.sub}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* DIETARY */}
+            <View style={[styles.section, { marginBottom: 0 }]}>
+              <Text style={styles.sectionTitle}>Dietary Preference</Text>
+              <View style={styles.toggleRow}>
+                {['vegan', 'non-vegan'].map((opt) => (
+                  <Pressable
+                    key={opt}
+                    style={[styles.toggleButton, selection === opt && styles.toggleSelected]}
+                    onPress={() => setSelection(opt)}
+                  >
+                    <Text style={[styles.toggleText, selection === opt && styles.toggleTextSelected]}>
+                      {opt === 'vegan' ? '🌿 Vegan' : '🥩 Non-Vegan'}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          {/* NEXT BUTTON */}
+          <Pressable
+            style={({ pressed }) => [styles.nextButton, pressed && styles.pressed]}
+            onPress={handleNext}
+          >
+            <Text style={styles.nextButtonText}>Find My Restaurant</Text>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </Pressable>
+
+          <Text style={styles.footerNote}>We'll find something nearby that fits.</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 24,
-    paddingTop: 40,
+    backgroundColor: '#FFFBF7',
   },
-
-  header: {
-    marginBottom: 40,
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
 
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: '#111',
-    textAlign: 'center',
+  // Brand
+  brandHeader: {
+    alignItems: 'center',
+    marginBottom: 36,
+  },
+  appName: {
+    fontSize: 44,
+    fontWeight: '900',
+    color: '#E8501A',
+    letterSpacing: -1.5,
+    marginBottom: 6,
+  },
+  tagline: {
+    fontSize: 15,
+    color: '#aaa',
+    fontWeight: '500',
   },
 
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 10,
-    textAlign: 'center',
+  // Card
+  card: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
+    marginBottom: 20,
   },
 
   section: {
-    marginBottom: 35,
+    marginBottom: 24,
   },
-
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#aaa',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    borderWidth: 1.5,
+    borderColor: '#EEE',
     color: '#111',
   },
 
-  input: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 16,
-    fontSize: 18,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    width: '100%',
-    alignSelf: 'center',
-  },
-
+  // Budget
   budgetRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 12,
+    gap: 10,
   },
-
   budgetButton: {
-    width: 90,
-    height: 90,
-    backgroundColor: '#fff',
-    borderRadius: 20,
+    flex: 1,
+    paddingVertical: 14,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#ddd',
-    marginHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#EEE',
   },
-
   selectedBudget: {
-    backgroundColor: '#ff5a5f',
-    borderColor: '#ff5a5f',
+    backgroundColor: '#E8501A',
+    borderColor: '#E8501A',
   },
-
   budgetText: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '800',
     color: '#111',
   },
-
   selectedBudgetText: {
     color: '#fff',
   },
-
-  radioRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 30,
+  budgetSub: {
+    fontSize: 10,
+    color: '#bbb',
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  selectedBudgetSub: {
+    color: 'rgba(255,255,255,0.75)',
   },
 
-  radioOption: {
+  // Toggle
+  toggleRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 8,
+    gap: 10,
   },
-
-  outerCircle: {
-    width: 24,
-    height: 24,
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 13,
     borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#111',
-    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#EEE',
+    backgroundColor: '#FAFAFA',
     alignItems: 'center',
-    marginRight: 10,
+  },
+  toggleSelected: {
+    backgroundColor: '#111',
+    borderColor: '#111',
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#777',
+  },
+  toggleTextSelected: {
+    color: '#fff',
   },
 
-  innerCircle: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#4CAF50',
-  },
-
-  radioText: {
-    fontSize: 18,
-    color: '#111',
-  },
-
+  // CTA
   nextButton: {
-    marginTop: 'auto',
-    marginBottom: 30,
-    backgroundColor: '#ff5a5f',
-    height: 60,
-    borderRadius: 18,
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: '#E8501A',
+    height: 56,
+    borderRadius: 16,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 10,
+    shadowColor: '#E8501A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 6,
+    marginBottom: 16,
   },
-
   nextButtonText: {
     color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  pressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
   },
 
-  pressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
+  footerNote: {
+    fontSize: 13,
+    color: '#ccc',
+    textAlign: 'center',
   },
 });
